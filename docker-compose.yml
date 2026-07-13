@@ -1,0 +1,28 @@
+version: "3.8"
+
+# Local, zero-account observability backend: the app sends OTLP/HTTP to the
+# collector, which forwards traces to Jaeger and exposes its own metrics.
+# `docker compose up` and then http://localhost:16686 is enough to follow a
+# run end to end. Point OTEL_EXPORTER_OTLP_ENDPOINT at Honeycomb/Grafana
+# Cloud instead (see .env.example) if you'd rather use a hosted backend.
+
+services:
+  jaeger:
+    image: jaegertracing/all-in-one:1.60
+    ports:
+      - "16686:16686"   # Jaeger UI
+      - "14250:14250"   # gRPC receiver used by the collector
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.108.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ./otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - "4318:4318"     # OTLP HTTP receiver (what the app talks to)
+      - "4317:4317"     # OTLP gRPC receiver
+      - "8889:8889"     # Prometheus scrape endpoint for run metrics
+    depends_on:
+      - jaeger
