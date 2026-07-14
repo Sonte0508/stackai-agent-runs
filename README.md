@@ -76,9 +76,7 @@ Leave this running - it's the API server, on http://localhost:8000.
 ### 5. Start a run and follow it into the trace backend
 
 ```bash
-curl -X POST http://localhost:8000/v1/runs \
-  -H "Content-Type: application/json" \
-  -d '{"agent": "research-assistant", "input": {"query": "Summarize Q2 churn drivers"}}'
+curl -X POST http://localhost:8000/v1/runs -H "Content-Type: application/json" -d "{\"agent\": \"research-assistant\", \"input\": {\"query\": \"Summarize Q2 churn drivers\"}}"
 ```
 
 This returns `202` immediately with the run's `id` (status `queued` - the
